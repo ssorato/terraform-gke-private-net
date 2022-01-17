@@ -1,0 +1,168 @@
+#
+# Cannot configure non GCP DNS before know static IP address
+#
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+}
+
+resource "kubernetes_pod" "apple-app" {
+  count = var.app_domain == "" ? 0 : 1
+  metadata {
+    name = "apple-app"
+    labels = {
+      app = "apple"
+    }
+  }
+
+  spec {
+    container {
+      image = "hashicorp/http-echo"
+      name  = "apple-app"
+      args  = [
+        "-text=apple"
+      ]
+      port {
+        container_port = 5678
+      }
+    }
+  }
+}
+
+resource "kubernetes_pod" "banana-app" {
+  count = var.app_domain == "" ? 0 : 1
+  metadata {
+    name = "banana-app"
+    labels = {
+      app = "banana"
+    }
+  }
+
+  spec {
+    container {
+      image = "hashicorp/http-echo"
+      name  = "banana-app"
+      args  = [
+        "-text=banana"
+      ]
+      port {
+        container_port = 5678
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "apple-service" {
+  count = var.app_domain == "" ? 0 : 1
+  metadata {
+    name = "apple-service"
+  }
+  spec {
+    selector = {
+      app = kubernetes_pod.apple-app[count.index].metadata.0.labels.app
+    }
+    port {
+      port        = 5678
+      target_port = 5678
+    }
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_service" "banana-service" {
+  count = var.app_domain == "" ? 0 : 1
+  metadata {
+    name = "banana-service"
+  }
+  spec {
+    selector = {
+      app = kubernetes_pod.banana-app[count.index].metadata.0.labels.app
+    }
+    port {
+      port        = 5678
+      target_port = 5678
+    }
+    type = "NodePort"
+  }
+}
+
+resource "google_compute_managed_ssl_certificate" "lb-cert" {
+  count = var.app_domain == "" ? 0 : 1
+  name = "gke-demo-cert"
+  managed {
+    domains = [var.app_domain]
+  }
+}
+
+resource "kubernetes_manifest" "frontend_config" {
+  count = var.app_domain == "" ? 0 : 1
+  manifest = {
+    apiVersion = "networking.gke.io/v1beta1"
+    kind       = "FrontendConfig"
+
+    metadata = {
+      name      = "lb-http-to-https"
+      namespace = "default"
+    }
+
+    spec = {
+      redirectToHttps = {
+        enabled = true
+      }
+    }
+  }
+}
+
+resource "kubernetes_ingress_v1" "example_ingress" {
+  count = var.app_domain == "" ? 0 : 1
+  metadata {
+    name = "fruit-ingress"
+    annotations = {
+      "kubernetes.io/ingress.class" = "gce"
+      "ingress.kubernetes.io/rewrite-target" = "/"
+      "kubernetes.io/ingress.global-static-ip-name" = google_compute_global_address.lb_external_ip.name
+      "networking.gke.io/managed-certificates" = google_compute_managed_ssl_certificate.lb-cert[count.index].name
+      "kubernetes.io/ingress.allow-http" = "true" 
+      "networking.gke.io/v1beta1.FrontendConfig" = kubernetes_manifest.frontend_config[count.index].manifest.metadata.name
+    }
+  }
+
+  spec {
+    default_backend {
+      service {
+        name = "apple-service"
+        port {
+          number = 5678
+        }
+      }
+    }
+    rule {
+      http {
+        path {
+          backend {
+            service {
+              name = "apple-service"
+              port {
+                number = 5678
+              }
+            }
+          }
+
+          path = "/apple"
+        }
+
+        path {
+          backend {
+            service {
+              name = "banana-service"
+              port {
+                number = 5678
+              }
+            }
+          }
+
+          path = "/banana"
+        }
+      }
+    }
+  }
+}
