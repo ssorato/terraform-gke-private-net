@@ -4,7 +4,6 @@
 
 Before create the cluster enable the _Compute Engine API_ and _Kubernetes Engine API_
 
-
 ## Retrieve the access credentials
 
 ```bash
@@ -62,5 +61,5 @@ $ kubectl describe managedcertificate gke-demo-cert | grep -A5 "^Status"
 
 ## About demo_application.tf.DISABLED
 
-Try to create the previous application with terraform and _kubernetes_ provider. \
+Trying to create the previous application with terraform and _kubernetes_ provider. \
 Need to solve how to get the static LB external IP before create the app when using non GCP dns.
