@@ -1,8 +1,17 @@
 resource "google_service_account" "nodepool_serviceaccount" {
   account_id   = "service-account-id"
-  display_name = "Service Account"
+  display_name = "Node Pool Service Account"
 }
 
+resource "google_project_iam_member" "roles" {
+  for_each = toset(["roles/container.clusterViewer", "roles/artifactregistry.reader", "roles/storage.objectViewer"])
+  role     = each.value
+  member   = "serviceAccount:${google_service_account.nodepool_serviceaccount.email}"
+}
+
+data "http" "myip"{
+  url = "https://ifconfig.me"
+}
 
 # GKE cluster
 resource "google_container_cluster" "primary" {
