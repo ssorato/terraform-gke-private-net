@@ -47,6 +47,8 @@ terraform {
 
 ## Sample application
 
+On you DNS domain register set the FQDN as record type A and IP the `lb-external-ip`
+
 Set the FQDN in the [managed-cert.yml](ingress_demo/managed-cert.yml)
 
 ```bash
