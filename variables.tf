@@ -14,6 +14,12 @@ variable "region" {
   default     = "us-central1"
 }
 
+variable "environment" {
+  type        = string
+  description = "Environment name"
+  default     = "develop"
+}   
+
 variable "gke_name" {
   type        = string
   description = "The name of the GKE cluster"

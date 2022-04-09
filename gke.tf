@@ -76,7 +76,7 @@ resource "google_container_cluster" "primary" {
   resource_labels = merge(
     {
       name = "${var.gke_name}",
-      environment = "develop"
+      environment = var.environment
     },
     var.common_labels
   )
@@ -120,7 +120,7 @@ resource "google_container_node_pool" "primary_nodes" {
     labels = merge( # Kubernetes node labels ( node selector )
       {
         name = "${google_container_cluster.primary.name}-node-pool",
-        environment = "develop"
+        environment = var.environment
         cluster = "${google_container_cluster.primary.name}"
       },
       var.common_labels
