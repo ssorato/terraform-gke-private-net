@@ -13,6 +13,11 @@ output "kubernetes_cluster_region" {
   description = "GKE Cluster region"
 }
 
+output "kubernetes_project" {
+  value       = google_container_cluster.primary.project
+  description = "GKE Cluster project"
+}
+
 output "lb_extenal_ip" {
   value       = google_compute_global_address.lb_external_ip.address
   description = "The load balancer external IP"
