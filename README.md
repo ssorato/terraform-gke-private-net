@@ -65,3 +65,13 @@ $ kubectl describe managedcertificate gke-demo-cert | grep -A5 "^Status"
 
 Trying to create the previous application with terraform and _kubernetes_ provider. \
 Need to solve how to get the static LB external IP before create the app when using non GCP dns.
+
+## GKE and node type e2-medium
+
+[Release notes June 02 2020](https://cloud.google.com/kubernetes-engine/docs/release-notes#June_02_2020)
+
+The machine type _e2-medium_ has `2 vCPU` and `4GB RAM`, but the due to GKE reserve allocatable cpu is `940 mCPU`.
+
+## GKE node count
+
+Due to _lifecycle ignore changes_ changing the variable _gke\_num\_nodes_ will not change the number of nodes.
