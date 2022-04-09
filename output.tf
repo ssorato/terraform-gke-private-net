@@ -8,6 +8,11 @@ output "kubernetes_cluster_host" {
   description = "GKE Cluster Host"
 }
 
+output "kubernetes_cluster_region" {
+  value       = google_container_cluster.primary.location
+  description = "GKE Cluster region"
+}
+
 output "lb_extenal_ip" {
   value       = google_compute_global_address.lb_external_ip.address
   description = "The load balancer external IP"

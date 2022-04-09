@@ -7,7 +7,7 @@ Before create the cluster enable the _Compute Engine API_ and _Kubernetes Engine
 ## Retrieve the access credentials
 
 ```bash
-$ gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw region)
+$ gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw kubernetes_cluster_region)
 ```
 ## Sample terraform.tfvars
 
