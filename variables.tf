@@ -26,7 +26,7 @@ variable "gke_num_nodes" {
   default     = 1
 }
 
-variable "node_disk_size_db" {
+variable "node_disk_size_gb" {
   type        = number
   description = "Size of the disk attached to each node"
   default     = 10
