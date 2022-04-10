@@ -81,8 +81,6 @@ resource "google_container_cluster" "primary" {
     var.common_labels
   )
 
-  #tags = ["foo", "bar"]
-
   lifecycle {
     ignore_changes = [
       min_master_version,
@@ -94,6 +92,10 @@ resource "google_container_cluster" "primary" {
 
   vertical_pod_autoscaling {
     enabled = false
+  }
+
+  node_config {
+    tags = ["${var.gke_name}-fw-target"]
   }
 
 }
@@ -135,9 +137,7 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = var.node_disk_size_gb
     disk_type = var.node_disk_type
 
-    # tags         = [ # network firewall
-    #   "${var.google_compute_network.vpc.name}-allow-internal"
-    # ] 
+    tags = [ "${google_container_cluster.primary.name}-node-pool-fw-target" ] 
 
     metadata = {
       disable-legacy-endpoints = "true"

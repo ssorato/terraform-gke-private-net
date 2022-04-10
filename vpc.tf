@@ -43,3 +43,16 @@ resource "google_compute_router_nat" "nat_router" {
     filter = "ERRORS_ONLY"
   }
 }
+
+# https://kubernetes.github.io/ingress-nginx/deploy/#gce-gke 
+resource "google_compute_firewall" "nginx-ingress-admission" {
+  name    = "nginx-ingress-admission"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8443"]
+  }
+
+  target_tags = [ "${google_container_cluster.primary.name}-node-pool-fw-target" ]
+}
